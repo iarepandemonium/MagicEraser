@@ -2,6 +2,7 @@ package net.pandette;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -38,7 +39,11 @@ public class EraserCommand extends ListenerAdapter {
 
     public void onCommand(SlashCommandInteractionEvent event) {
         if (!event.getName().equalsIgnoreCase("eraser")) {
-            System.out.println("????");
+            return;
+        }
+
+        if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            event.reply("You are not powerful enough to magic erase messages!").queue();
             return;
         }
 
