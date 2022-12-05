@@ -1,0 +1,6 @@
+.gradle/file-system.probe
+BotConfiguration.json
+.gradle/
+.idea/
+build/
+configs/
