@@ -6,12 +6,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.pandette.config.ChannelData;
 import net.pandette.config.ServerConfig;
 import net.pandette.utils.Utility;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,36 +77,45 @@ public class MessageDeletion implements Runnable {
         if (chan == null) return;
 
 
-        new Thread(() -> {
-            MessageHistory hist = chan.getHistoryFromBeginning(100).complete();
-            List<Message> notPinnedNotOld = new ArrayList<>();
-            long now = System.currentTimeMillis();
+        MessageHistory hist = chan.getHistoryFromBeginning(100).complete();
+        List<Message> notPinnedNotOld = new ArrayList<>();
+        long now = System.currentTimeMillis();
 
-            List<Message> list = new ArrayList<>(hist.getRetrievedHistory());
-            Collections.reverse(list);
-            for (Message m : list) {
-                if (m.isPinned()) continue;
+        List<Message> list = new ArrayList<>(hist.getRetrievedHistory());
+        Collections.reverse(list);
+        for (Message m : list) {
+            if (m.isPinned()) continue;
 
-                long timeMillis = m.getTimeCreated().toInstant().toEpochMilli();
+            long timeMillis = m.getTimeCreated().toInstant().toEpochMilli();
 
-                if (c.getTime() == -1 || now <= c.getTime() + timeMillis) {
-                    notPinnedNotOld.add(m);
-                    continue;
-                }
-
-                m.delete().queue();
+            if (c.getTime() == -1 || now <= c.getTime() + timeMillis) {
+                notPinnedNotOld.add(m);
+                continue;
             }
 
-            if (c.getMessageCount() == -1) return;
-
-            int deleteTooMuch = notPinnedNotOld.size() - c.getMessageCount();
-
-            for (int i = 0; i < deleteTooMuch; i++) {
-                notPinnedNotOld.get(i).delete().queue();
+            m.delete().queue();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        }).start();
+        }
 
+        if (c.getMessageCount() == -1) return;
+
+        int deleteTooMuch = notPinnedNotOld.size() - c.getMessageCount();
+
+        for (int i = 0; i < deleteTooMuch; i++) {
+            notPinnedNotOld.get(i).delete().queue();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-
 }
+
+
+

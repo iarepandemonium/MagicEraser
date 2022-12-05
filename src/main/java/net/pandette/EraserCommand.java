@@ -127,13 +127,19 @@ public class EraserCommand extends ListenerAdapter {
                 long val;
                 String qualifier = t.substring(t.length() - 1).toLowerCase();
                 switch (qualifier) {
-                    case "s" -> val = TimeUnit.SECONDS.toMillis(timeCount);
-                    case "m" -> val = TimeUnit.MINUTES.toMillis(timeCount);
-                    case "d" -> val = TimeUnit.DAYS.toMillis(timeCount);
-                    default -> {
+                    case "s":
+                        val = TimeUnit.SECONDS.toMillis(timeCount);
+                        break;
+                    case "m":
+                        val = TimeUnit.MINUTES.toMillis(timeCount);
+                        break;
+                    case "d":
+                        val = TimeUnit.DAYS.toMillis(timeCount);
+                        break;
+                    default:
                         event.reply("Could not parse time unit. It must be a number with [s, m, d]. ie: 20s, 10m, 4d.").queue();
                         return;
-                    }
+
                 }
                 add += " Time Deletion is " + t + ".";
                 data.setTime(val);
