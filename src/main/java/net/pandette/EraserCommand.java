@@ -42,7 +42,7 @@ public class EraserCommand extends ListenerAdapter {
             return;
         }
 
-        if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+        if (!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             event.reply("You are not powerful enough to magic erase messages!").queue();
             return;
         }
