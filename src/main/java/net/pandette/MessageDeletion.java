@@ -83,11 +83,15 @@ public class MessageDeletion implements Runnable {
             } catch (Exception perm) {
                 Guild g = MagicEraser.getJda().getGuildById(guild);
                 Channel c = null;
-                for (Channel ch : g.getChannels(true)) {
-                    if (ch.getIdLong() == d.getChannelId()) {
-                        c = ch;
-                        break;
+                try {
+                    for (Channel ch : g.getChannels(true)) {
+                        if (ch.getIdLong() == d.getChannelId()) {
+                            c = ch;
+                            break;
+                        }
                     }
+                } catch (Exception e) {
+                    System.out.println("Error with channels: " + e.getMessage());
                 }
 
                 String name = "";

@@ -57,7 +57,7 @@ public class EraserCommand extends ListenerAdapter {
             MessageDeletion.guilds.add(event.getGuild().getId());
             MessageDeletion.runGuildThread(event.getGuild().getId());
         }
-        
+
         if (!f.exists()) {
             config = new ServerConfig();
         } else {
