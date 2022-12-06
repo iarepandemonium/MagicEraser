@@ -56,13 +56,13 @@ public class EraserCommand extends ListenerAdapter {
         File f = new File(filename);
         ServerConfig config;
 
-        String id = event.getGuild().getId();
-        if (!MagicEraser.GUILD_DELETION.containsKey(id)) {
-            MagicEraser.GUILD_DELETION.put(id, new GuildMessageDeletion(id));
-        }
-
         if (!f.exists()) {
             config = new ServerConfig();
+            try {
+                Utility.writeFile(filename, gson.toJson(config));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             try {
                 config = gson.fromJson(Utility.readFile(filename), ServerConfig.class);
@@ -70,6 +70,11 @@ public class EraserCommand extends ListenerAdapter {
                 event.reply("There was a problem saving the configuration file!").queue();
                 throw new RuntimeException(e);
             }
+        }
+
+        String id = event.getGuild().getId();
+        if (!MagicEraser.GUILD_DELETION.containsKey(id)) {
+            MagicEraser.GUILD_DELETION.put(id, new GuildMessageDeletion(id));
         }
 
         if (config.getChannelData() == null) config.setChannelData(new ArrayList<>());
