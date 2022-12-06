@@ -106,6 +106,7 @@ public class MessageDeletion implements Runnable {
             }
         }
         Guild g = MagicEraser.getJda().getGuildById(guild);
+        if (g == null) return;
         try {
             if (config.getServername() == null || !config.getServername().equals(g.getName())) {
                 config.setServername(g.getName());
