@@ -35,7 +35,11 @@ public class MessageDeletion implements Runnable {
 
     @AllArgsConstructor
     @Value
-    record Error(String guild, String error, long timeReceived) {
+    static class Error {
+        String guild;
+        String error;
+        long timeReceived;
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -155,7 +159,7 @@ public class MessageDeletion implements Runnable {
         Error err = new Error(String.valueOf(guild), error, System.currentTimeMillis());
         if (errors.contains(err)) {
             Error curr = errors.get(errors.indexOf(err));
-            if (curr.timeReceived() + TimeUnit.MINUTES.toMillis(5) < System.currentTimeMillis()) {
+            if (curr.getTimeReceived() + TimeUnit.MINUTES.toMillis(5) < System.currentTimeMillis()) {
                 errors.remove(curr);
             } else {
                 return true;
