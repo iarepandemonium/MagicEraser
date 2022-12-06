@@ -91,7 +91,10 @@ public class MessageDeletion implements Runnable {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println("Error with channels: " + e.getMessage());
+                    System.out.printf("The Guild %s [%s] in [%d] has encountered the following error: %s%n",
+                            g.getName(),
+                            guild,
+                            d.getChannelId(),e.getMessage());
                 }
 
                 String name = "";
