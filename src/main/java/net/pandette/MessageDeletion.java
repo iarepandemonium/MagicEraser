@@ -35,12 +35,7 @@ public class MessageDeletion implements Runnable {
 
     @AllArgsConstructor
     @Value
-    static
-    class Error{
-        String guild;
-        String error;
-        long timeReceived;
-
+    record Error(String guild, String error, long timeReceived) {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -106,12 +101,20 @@ public class MessageDeletion implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+        Guild g = MagicEraser.getJda().getGuildById(guild);
+        if (config.getServername() == null || !config.getServername().equals(g.getName())) {
+            config.setServername(g.getName());
+            try {
+                Utility.writeFile(filename, gson.toJson(config));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         for (ChannelData d : config.getChannelData()) {
             try {
                 deleteMessages(guild, d.getChannelId(), d);
             } catch (Exception perm) {
-                Guild g = MagicEraser.getJda().getGuildById(guild);
                 Channel c = null;
                 try {
                     for (Channel ch : g.getChannels(true)) {
@@ -125,11 +128,11 @@ public class MessageDeletion implements Runnable {
 
                             g.getName(),
                             guild,
-                            d.getChannelId(),e.getMessage());
+                            d.getChannelId(), e.getMessage());
 
                     if (checkErrorSpam(guild, error)) return;
 
-                    System.out.printf(currentTimestamp() + ": " +  error);
+                    System.out.printf(currentTimestamp() + ": " + error);
                 }
 
                 String name = "";
@@ -152,7 +155,7 @@ public class MessageDeletion implements Runnable {
         Error err = new Error(String.valueOf(guild), error, System.currentTimeMillis());
         if (errors.contains(err)) {
             Error curr = errors.get(errors.indexOf(err));
-            if (curr.getTimeReceived() + TimeUnit.MINUTES.toMillis(5) < System.currentTimeMillis()) {
+            if (curr.timeReceived() + TimeUnit.MINUTES.toMillis(5) < System.currentTimeMillis()) {
                 errors.remove(curr);
             } else {
                 return true;

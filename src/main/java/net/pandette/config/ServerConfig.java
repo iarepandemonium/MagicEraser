@@ -9,6 +9,9 @@ import java.util.Map;
 @Data
 public class ServerConfig {
 
+    @SerializedName("server-name")
+    private String servername;
+
     @SerializedName("channel-data")
     private List<ChannelData> channelData;
 }
