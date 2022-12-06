@@ -48,7 +48,7 @@ public class MagicEraser extends ListenerAdapter {
 
         jda = createJDA();
 
-        new Thread(new MessageDeletion()).start();
+        new MessageDeletion();
 
         jda.addEventListener(new EraserCommand());
     }

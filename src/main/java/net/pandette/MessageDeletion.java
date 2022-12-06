@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.pandette.config.ChannelData;
 import net.pandette.config.ServerConfig;
 import net.pandette.utils.Utility;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class MessageDeletion implements Runnable {
 
@@ -28,23 +28,27 @@ public class MessageDeletion implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                File configs = new File("configs");
-                if (!configs.exists()) configs.mkdirs();
-                for (File f : configs.listFiles()) {
-                    if (!f.getName().endsWith(".json")) continue;
-                    String guild = f.getName().replace(".json", "");
-                    try {
-                        loopChannels(Long.parseLong(guild));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Thread.sleep(1000);
+        try {
+            File configs = new File("configs");
+            if (!configs.exists()) configs.mkdirs();
+            if (!configs.isDirectory()) return;
+
+            for (File f : Objects.requireNonNull(configs.listFiles())) {
+                if (!f.getName().endsWith(".json")) continue;
+                String guild = f.getName().replace(".json", "");
+                try {
+                    new Thread(() -> {
+                        while (true) {
+                            loopChannels(Long.parseLong(guild));
+                        }
+                    }).start();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
 
