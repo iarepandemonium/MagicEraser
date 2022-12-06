@@ -68,7 +68,7 @@ public class MessageDeletion implements Runnable {
         for (ChannelData d : config.getChannelData()) {
             try {
                 deleteMessages(guild, d.getChannelId(), d);
-            } catch (InsufficientPermissionException perm) {
+            } catch (Exception perm) {
                 Guild g = MagicEraser.getJda().getGuildById(guild);
                 Channel c = null;
                 for (Channel ch : g.getChannels(true)) {
@@ -83,7 +83,7 @@ public class MessageDeletion implements Runnable {
                     name = c.getName();
                 }
                 System.out.printf(
-                        "The Guild %s [%s] lacks permissions to use magic eraser for channel %s [%d]: %s%n",
+                        "The Guild %s [%s] in %s [%d] has encountered the following error: %s%n",
                         g.getName(),
                         guild,
                         name,
