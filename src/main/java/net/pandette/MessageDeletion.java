@@ -2,6 +2,8 @@ package net.pandette;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -13,17 +15,45 @@ import net.pandette.utils.Utility;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class MessageDeletion implements Runnable {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     public static final Set<String> guilds = new HashSet<>();
+    private static final List<Error> errors = new ArrayList<>();
+
+
+    @AllArgsConstructor
+    @Value
+    static
+    class Error{
+        String guild;
+        String error;
+        long timeReceived;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Error error1 = (Error) o;
+            return guild.equals(error1.guild) && error.equals(error1.error);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(guild, error);
+        }
+    }
 
 
     public MessageDeletion() {
@@ -91,25 +121,52 @@ public class MessageDeletion implements Runnable {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.printf("The Guild %s [%s] in [%d] has encountered the following error: %s%n",
+                    String error = String.format("The Guild %s [%s] in [%d] has encountered the following error: %s%n",
+
                             g.getName(),
                             guild,
                             d.getChannelId(),e.getMessage());
+
+                    if (checkErrorSpam(guild, error)) return;
+
+                    System.out.printf(currentTimestamp() + ": " +  error);
                 }
 
                 String name = "";
                 if (c != null) {
                     name = c.getName();
                 }
-                System.out.printf(
-                        "The Guild %s [%s] in %s [%d] has encountered the following error: %s%n",
+                String error = String.format("The Guild %s [%s] in %s [%d] has encountered the following error: %s%n",
                         g.getName(),
                         guild,
                         name,
                         d.getChannelId(),
                         perm.getMessage());
+                if (checkErrorSpam(guild, error)) return;
+                System.out.printf(currentTimestamp() + ": " + error);
             }
         }
+    }
+
+    private static boolean checkErrorSpam(long guild, String error) {
+        Error err = new Error(String.valueOf(guild), error, System.currentTimeMillis());
+        if (errors.contains(err)) {
+            Error curr = errors.get(errors.indexOf(err));
+            if (curr.getTimeReceived() + TimeUnit.MINUTES.toMillis(5) < System.currentTimeMillis()) {
+                errors.remove(curr);
+            } else {
+                return true;
+            }
+        }
+
+        errors.add(err);
+        return false;
+    }
+
+    public static String currentTimestamp() {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
+        DateFormat f = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+        return f.format(c.getTime());
     }
 
     public static void deleteMessages(long guild, long channel, ChannelData c) {
