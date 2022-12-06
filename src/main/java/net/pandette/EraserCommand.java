@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.pandette.config.ChannelData;
 import net.pandette.config.ServerConfig;
+import net.pandette.pojo.GuildMessageDeletion;
 import net.pandette.utils.Utility;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +24,7 @@ public class EraserCommand extends ListenerAdapter {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public EraserCommand() {
+        //Creates the command globally in discord for the bot.
         MagicEraser.getJda().upsertCommand("eraser", "Allows you to setup the Magic Eraser to delete from channel based on the settings you input.")
                 .addOption(OptionType.CHANNEL, "channel", "Name of the channel you wish to have erase", true)
                 .addOption(OptionType.BOOLEAN, "remove", "If option is selected all other " +
@@ -37,6 +39,7 @@ public class EraserCommand extends ListenerAdapter {
         onCommand(event);
     }
 
+    //Very long method that needs to be broken up for everything this command does.
     public void onCommand(SlashCommandInteractionEvent event) {
         if (!event.getName().equalsIgnoreCase("eraser")) {
             return;
@@ -53,9 +56,9 @@ public class EraserCommand extends ListenerAdapter {
         File f = new File(filename);
         ServerConfig config;
 
-        if (!MessageDeletion.guilds.contains(event.getGuild().getId())) {
-            MessageDeletion.guilds.add(event.getGuild().getId());
-            MessageDeletion.runGuildThread(event.getGuild().getId());
+        String id = event.getGuild().getId();
+        if (!MagicEraser.GUILD_DELETION.containsKey(id)) {
+            MagicEraser.GUILD_DELETION.put(id, new GuildMessageDeletion(id));
         }
 
         if (!f.exists()) {
@@ -132,7 +135,7 @@ public class EraserCommand extends ListenerAdapter {
                 try {
                     timeCount = Integer.parseInt(t.substring(0, t.length() - 1));
                 } catch (Exception e) {
-                    event.reply("Could not parse integer from time count. It must be a number with [s, m, d]. ie: 20s, 10m, 4d.").queue();
+                    event.reply("Could not parse integer from time count. It must be a number with [s, m, h, d]. ie: 20s, 10m, 4h, 4d.").queue();
                     return;
                 }
 
@@ -148,8 +151,11 @@ public class EraserCommand extends ListenerAdapter {
                     case "d":
                         val = TimeUnit.DAYS.toMillis(timeCount);
                         break;
+                    case "h":
+                        val = TimeUnit.HOURS.toMillis(timeCount);
+                        break;
                     default:
-                        event.reply("Could not parse time unit. It must be a number with [s, m, d]. ie: 20s, 10m, 4d.").queue();
+                        event.reply("Could not parse time unit. It must be a number with [s, m, h, d]. ie: 20s, 10m, 4h, 4d.").queue();
                         return;
 
                 }
