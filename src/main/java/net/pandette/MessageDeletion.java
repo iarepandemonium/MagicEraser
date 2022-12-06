@@ -5,7 +5,9 @@ import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.pandette.config.ChannelData;
 import net.pandette.config.ServerConfig;
 import net.pandette.utils.Utility;
@@ -64,7 +66,30 @@ public class MessageDeletion implements Runnable {
         }
 
         for (ChannelData d : config.getChannelData()) {
-            deleteMessages(guild, d.getChannelId(), d);
+            try {
+                deleteMessages(guild, d.getChannelId(), d);
+            } catch (InsufficientPermissionException perm) {
+                Guild g = MagicEraser.getJda().getGuildById(guild);
+                Channel c = null;
+                for (Channel ch : g.getChannels(true)) {
+                    if (ch.getIdLong() == d.getChannelId()) {
+                        c = ch;
+                        break;
+                    }
+                }
+
+                String name = "";
+                if (c != null) {
+                    name = c.getName();
+                }
+                System.out.printf(
+                        "The Guild %s [%s] lacks permissions to use magic eraser for channel %s [%d]: %s%n",
+                        g.getName(),
+                        guild,
+                        name,
+                        d.getChannelId(),
+                        perm.getMessage());
+            }
         }
     }
 
