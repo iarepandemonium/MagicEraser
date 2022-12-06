@@ -102,6 +102,8 @@ public class GuildMessageDeletion {
      * @param config Configuration
      */
     private void attemptToWriteDebugData(Guild guild, ServerConfig config){
+        if (config.getDateCreated() == null) config.setDateCreated(System.currentTimeMillis());
+
         if (config.getServername() != null && config.getServername().equals(guild.getName())) return;
 
         config.setServername(guild.getName());
