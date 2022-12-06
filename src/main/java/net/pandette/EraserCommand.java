@@ -52,8 +52,15 @@ public class EraserCommand extends ListenerAdapter {
         String filename = "configs/" + event.getGuild().getId() + ".json";
         File f = new File(filename);
         ServerConfig config;
-        if (!f.exists()) config = new ServerConfig();
-        else {
+
+        if (!MessageDeletion.guilds.contains(event.getGuild().getId())) {
+            MessageDeletion.guilds.add(event.getGuild().getId());
+            MessageDeletion.runGuildThread(event.getGuild().getId());
+        }
+        
+        if (!f.exists()) {
+            config = new ServerConfig();
+        } else {
             try {
                 config = gson.fromJson(Utility.readFile(filename), ServerConfig.class);
             } catch (IOException e) {

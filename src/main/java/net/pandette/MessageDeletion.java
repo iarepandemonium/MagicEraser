@@ -15,12 +15,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class MessageDeletion implements Runnable {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static final Set<String> guilds = new HashSet<>();
 
 
     public MessageDeletion() {
@@ -36,12 +39,9 @@ public class MessageDeletion implements Runnable {
             for (File f : Objects.requireNonNull(configs.listFiles())) {
                 if (!f.getName().endsWith(".json")) continue;
                 String guild = f.getName().replace(".json", "");
+                guilds.add(guild);
                 try {
-                    new Thread(() -> {
-                        while (true) {
-                            loopChannels(Long.parseLong(guild));
-                        }
-                    }).start();
+                    runGuildThread(guild);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -54,13 +54,21 @@ public class MessageDeletion implements Runnable {
 
     }
 
-    public void loopChannels(long guild) {
+    public static void runGuildThread(String guild) {
+        new Thread(() -> {
+            while (true) {
+                loopChannels(Long.parseLong(guild));
+            }
+        }).start();
+    }
+
+    public static void loopChannels(long guild) {
         File configs = new File("configs");
         if (!configs.exists()) configs.mkdirs();
         String filename = "configs/" + guild + ".json";
         File f = new File(filename);
         ServerConfig config;
-        if (!f.exists()) config = new ServerConfig();
+        if (!f.exists()) return;
         else {
             try {
                 config = gson.fromJson(Utility.readFile(filename), ServerConfig.class);
@@ -97,7 +105,7 @@ public class MessageDeletion implements Runnable {
         }
     }
 
-    public void deleteMessages(long guild, long channel, ChannelData c) {
+    public static void deleteMessages(long guild, long channel, ChannelData c) {
         Guild g = MagicEraser.getJda().getGuildById(guild);
 
         if (g == null) return;
