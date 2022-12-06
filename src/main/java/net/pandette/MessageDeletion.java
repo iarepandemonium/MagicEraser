@@ -106,13 +106,17 @@ public class MessageDeletion implements Runnable {
             }
         }
         Guild g = MagicEraser.getJda().getGuildById(guild);
-        if (config.getServername() == null || !config.getServername().equals(g.getName())) {
-            config.setServername(g.getName());
-            try {
-                Utility.writeFile(filename, gson.toJson(config));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try {
+            if (config.getServername() == null || !config.getServername().equals(g.getName())) {
+                config.setServername(g.getName());
+                try {
+                    Utility.writeFile(filename, gson.toJson(config));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
+        } catch (Exception e) {
+            System.out.println("Error when trying to set name.");
         }
 
         for (ChannelData d : config.getChannelData()) {
