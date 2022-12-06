@@ -51,6 +51,7 @@ public class GuildMessageDeletion {
                 try {
                     channelDeletion(Long.parseLong(id));
                 } catch (Exception e) {
+                    e.printStackTrace();
                     String errorMessage = getErrorMessage(id, e.getClass().getName() + " " + e.getMessage());
                     if (isErrorMessageSpam(Long.parseLong(id), errorMessage)) return;
                     System.out.println(Utility.timestamp() + ": " + errorMessage);
