@@ -97,7 +97,7 @@ public class MagicEraser extends ListenerAdapter {
         jda = JDABuilder
                 .createDefault(configuration.getBotToken())
                 .setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES,
-                        GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.SCHEDULED_EVENTS)
+                        GatewayIntent.GUILD_EXPRESSIONS, GatewayIntent.SCHEDULED_EVENTS)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .build();
         //jda.addEventListener(new DiscordListener());
