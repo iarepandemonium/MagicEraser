@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.pandette.MagicEraser;
 import net.pandette.config.ChannelData;
 import net.pandette.config.ServerConfig;
@@ -40,6 +40,7 @@ public class GuildMessageDeletion {
      * This is the constuctor for the class. This will create the class and also begin the message deletion.
      * It is run in its own independent thread so that one guild will not be affected by an opposing guild that
      * might take up the bots resources and the bot can balance between them as rate limiting allows.
+     *
      * @param id Id for the guild
      */
     public GuildMessageDeletion(String id) {
@@ -64,10 +65,11 @@ public class GuildMessageDeletion {
      * This way if the guild is not active it will not attempt to run it. A guild becomes inactive when the bot is no
      * longer in the server. It attempts to write any debug data necessary to the logs, as well as cycling thru all the
      * channels given to delete messages in said channel.
+     *
      * @param guildId Guild ID
      */
     private void channelDeletion(long guildId) {
-        if(!isActive()) return;
+        if (!isActive()) return;
         Guild guild = MagicEraser.getJda().getGuildById(guildId);
 
         ServerConfig config = getConfig();
@@ -79,7 +81,7 @@ public class GuildMessageDeletion {
 
         config.getChannelData().forEach(
                 d -> {
-                    TextChannel channel = guild.getChannelById(TextChannel.class, d.getChannelId());
+                    MessageChannel channel = guild.getChannelById(MessageChannel.class, d.getChannelId());
                     if (channel == null) return;
 
                     try {
@@ -98,10 +100,11 @@ public class GuildMessageDeletion {
     /**
      * This currently just writes the server name to the config because its hard to help debug if we cannot check
      * individual configs.
-     * @param guild Guild
+     *
+     * @param guild  Guild
      * @param config Configuration
      */
-    private void attemptToWriteDebugData(Guild guild, ServerConfig config){
+    private void attemptToWriteDebugData(Guild guild, ServerConfig config) {
         if (config.getDateCreated() == null) config.setDateCreated(System.currentTimeMillis());
 
         if (config.getServername() != null && config.getServername().equals(guild.getName())) return;
@@ -116,6 +119,7 @@ public class GuildMessageDeletion {
 
     /**
      * This creates an error message with only the guild id.
+     *
      * @param guild guild id
      * @param error Error message to make
      * @return Formatted error message
@@ -128,6 +132,7 @@ public class GuildMessageDeletion {
 
     /**
      * This creates an error message with the guild name, and the guild id.
+     *
      * @param guild Guild
      * @param error Error message to make
      * @return Formatted error message
@@ -142,9 +147,10 @@ public class GuildMessageDeletion {
     /**
      * This creates an error message with the guild name, the guild id, the channel name, and the
      * channel id.
-     * @param guild Guild
+     *
+     * @param guild   Guild
      * @param channel Channel
-     * @param error Error message to make
+     * @param error   Error message to make
      * @return Formatted Error Message
      */
     private String getErrorMessage(Guild guild, Channel channel, String error) {
@@ -158,6 +164,7 @@ public class GuildMessageDeletion {
 
     /**
      * Checks if the bot is still in the guild
+     *
      * @return True if it is, false if it is not.
      */
     private boolean isActive() {
@@ -166,14 +173,16 @@ public class GuildMessageDeletion {
 
     /**
      * Gets the file location of the config for this guild
+     *
      * @return Location of the configuration file.
      */
-    private String configLocation(){
+    private String configLocation() {
         return "configs/" + id + ".json";
     }
 
     /**
      * Gets the server config if it exists.
+     *
      * @return Server Config if it exists, null if it does not.
      */
     private ServerConfig getConfig() {
@@ -196,6 +205,7 @@ public class GuildMessageDeletion {
      * Checks a specific error message to see if it is considered a spam message (Same message within 5 minutes,
      * if it is, it will return true,
      * if it is not, it will return false.
+     *
      * @param guild Guild for the message
      * @param error Error message being sent
      * @return True for spam, false for not spam.
@@ -216,10 +226,11 @@ public class GuildMessageDeletion {
 
     /**
      * Method that deletes old messages in a channel based on time or message count.
+     *
      * @param channel Channel to delete old messages
-     * @param data Channel data
+     * @param data    Channel data
      */
-    private void deleteOldMessages(TextChannel channel, ChannelData data) {
+    private void deleteOldMessages(MessageChannel channel, ChannelData data) {
         List<Message> nonPinNonOldMessages = new ArrayList<>();
         MessageHistory channelHistory = channel.getHistoryFromBeginning(100).complete();
 
@@ -236,9 +247,10 @@ public class GuildMessageDeletion {
     /**
      * Deletes old messages based on time, if the time is -1 then it will simply add it to the nonpinnonold list.
      * If the message has expired, it will delete it.
-     * @param oldestToNewest Messages ordered oldest to newest
+     *
+     * @param oldestToNewest       Messages ordered oldest to newest
      * @param nonPinNonOldMessages Messages that are not pinned and not old
-     * @param data Channel data.
+     * @param data                 Channel data.
      */
     private void deleteTimeBased(List<Message> oldestToNewest, List<Message> nonPinNonOldMessages, ChannelData data) {
         long now = System.currentTimeMillis();
@@ -263,8 +275,9 @@ public class GuildMessageDeletion {
 
     /**
      * Delete messages based on message count, if count is -1 then it will not delete based on count.
+     *
      * @param nonPinNonOldMessages List of non pinned and non old messages
-     * @param data Channel data
+     * @param data                 Channel data
      */
     private void deleteMessageCount(List<Message> nonPinNonOldMessages, ChannelData data) {
         int messageCount = data.getMessageCount();
