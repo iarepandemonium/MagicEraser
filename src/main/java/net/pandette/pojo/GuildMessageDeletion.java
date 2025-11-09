@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.pandette.MagicEraser;
 import net.pandette.config.ChannelData;
@@ -81,7 +83,7 @@ public class GuildMessageDeletion {
 
         config.getChannelData().forEach(
                 d -> {
-                    MessageChannel channel = guild.getChannelById(MessageChannel.class, d.getChannelId());
+                    TextChannel channel = guild.getChannelById(TextChannel.class, d.getChannelId());
                     if (channel == null) return;
 
                     try {

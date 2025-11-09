@@ -21,7 +21,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 
-    implementation("net.dv8tion:JDA:5.0.0-alpha.22")
+    implementation("net.dv8tion:JDA:6.1.1")
     implementation("com.google.code.gson:gson:2.8.9")
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
